@@ -56,10 +56,8 @@ public class Review implements Serializable {
         this.status = "PENDING";
         setText(text);
         setRating(rating);
-        int month = getMonth();
-        int day = getDayOfMonth();
-        retrieveDataFromApi(day,month);
-        setCreationDateTime(getDate());
+        retrieveDataFromApi();
+        setCreationDateTime();
         this.totalVotes = 0;
         this.upVotes = 0;
         this.downVotes = 0;
@@ -117,8 +115,8 @@ public class Review implements Serializable {
         return creationDateTime;
     }
 
-    public void setCreationDateTime(Date creationDateTime) {
-        this.creationDateTime = creationDateTime;
+    public void setCreationDateTime() {
+        this.creationDateTime = getDate();
     }
 
     public String getFunFact() {
@@ -130,7 +128,9 @@ public class Review implements Serializable {
     }
 
 
-    public void retrieveDataFromApi(int day, int month) throws IOException {
+    public void retrieveDataFromApi() throws IOException {
+        int month = getMonth();
+        int day = getDayOfMonth();
         String baseUrl = "http://www.numbersapi.com/";
         String url = baseUrl + month + "/" + day + "/date";
 
@@ -187,19 +187,19 @@ public class Review implements Serializable {
         this.userid = userid;
     }
 
-    public int getMonth(){
+    private int getMonth(){
         Date dNow = getDate();
         LocalDate localDate = dNow.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         return localDate.getMonthValue();
     }
 
-    public int getDayOfMonth(){
+    private int getDayOfMonth(){
         Date dNow = getDate();
         LocalDate localDate = dNow.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         return localDate.getDayOfMonth();
     }
 
-    public Date getDate(){
+    private Date getDate(){
         Date dNow = new Date();
         return dNow;
     }

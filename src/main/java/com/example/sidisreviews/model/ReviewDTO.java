@@ -1,11 +1,13 @@
 package com.example.sidisreviews.model;
 
+import lombok.Data;
+
 import javax.persistence.Column;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.io.IOException;
 import java.util.Date;
-
+@Data
 public class ReviewDTO {
     private Long id;
     private String status;
