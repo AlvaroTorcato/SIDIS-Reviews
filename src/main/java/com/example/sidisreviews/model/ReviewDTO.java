@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Date;
 @Data
 public class ReviewDTO {
-    private Long id;
+    private int id;
     private String status;
     private String text;
     private float rating;
@@ -25,7 +25,7 @@ public class ReviewDTO {
 
     private int userid;
 
-    public ReviewDTO(Long id, String status, String text, float rating, int totalVotes, int upVotes, int downVotes, Date creationDateTime, String funFact, String sku, int userid) {
+    public ReviewDTO(int id, String status, String text, float rating, int totalVotes, int upVotes, int downVotes, Date creationDateTime, String funFact, String sku, int userid) {
         this.id = id;
         this.status = status;
         this.text = text;

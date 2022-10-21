@@ -1,11 +1,15 @@
 package com.example.sidisreviews.service;
 
+import com.example.sidisreviews.model.ChangeStatus;
 import com.example.sidisreviews.model.Review;
 import com.example.sidisreviews.model.ReviewDTO;
 import com.example.sidisreviews.model.ReviewDetailsDTO;
 import com.example.sidisreviews.repository.ReviewRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,6 +17,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 @Service
 public class ReviewService {
     @Autowired
@@ -26,6 +34,18 @@ public class ReviewService {
         Review review = new Review(resource.getText(), resource.getRating(),sku,userId);
         repository.save(review);
         ReviewDTO reviewDTO = new ReviewDTO(review);
+        return reviewDTO;
+    }
+    public List<ReviewDTO> findAllReviewsPending(Integer pageNo, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Page<ReviewDTO> review = repository.findAllPendingReviews(paging);
+        List<ReviewDTO> reviews = review.getContent();
+        return reviews;
+    }
+    public ReviewDTO changeStatus(int idReview, ChangeStatus resource) {
+        String updateString = resource.updateString();
+        repository.updateReview(updateString);
+        ReviewDTO reviewDTO = repository.findReviewById(idReview);
         return reviewDTO;
     }
 

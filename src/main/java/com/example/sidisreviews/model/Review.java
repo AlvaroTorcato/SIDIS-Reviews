@@ -22,7 +22,7 @@ import org.apache.http.HttpEntity;
 public class Review implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     private String status;
     @Column(nullable = true, columnDefinition = "TEXT")
     private String text;
@@ -65,11 +65,11 @@ public class Review implements Serializable {
         this.userid = userid;
     }
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -77,8 +77,14 @@ public class Review implements Serializable {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setStatus(ChangeStatus status) {
+        if (status.getApproved()){
+            this.status = "APPROVED";
+        }
+        else {
+            this.status = "REJECTED";
+        }
+
     }
 
     public String getText() {

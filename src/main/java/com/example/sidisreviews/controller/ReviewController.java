@@ -1,5 +1,6 @@
 package com.example.sidisreviews.controller;
 
+import com.example.sidisreviews.model.ChangeStatus;
 import com.example.sidisreviews.model.Review;
 import com.example.sidisreviews.model.ReviewDTO;
 import com.example.sidisreviews.model.ReviewDetailsDTO;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
+
 @Tag(name = "Reviews", description = "Endpoints for managing reviews")
 @RequestMapping("/reviews")
 @RestController
@@ -25,5 +28,16 @@ public class ReviewController {
     @ResponseStatus(HttpStatus.CREATED)
     public ReviewDTO create(@RequestBody final ReviewDetailsDTO resource, @PathVariable("sku") final String sku, @RequestParam int userId) throws IOException {
         return service.createReview(resource,sku, userId);
+    }
+
+    @Operation(summary = "Get all pending reviews")
+    @GetMapping(value = "/pending")
+    List<ReviewDTO> findAllReviewsPending(@RequestParam Integer pageNo, @RequestParam Integer pageSize){
+        return service.findAllReviewsPending(pageNo,pageSize);
+    }
+    @Operation(summary = "Change the status of the review")
+    @PutMapping(value = "/pending/{idReview}")
+    public ReviewDTO changeStatus(@PathVariable("idReview") final int idReview, @RequestBody final ChangeStatus resource){
+        return service.changeStatus(idReview,resource);
     }
 }
