@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class ReviewService {
     @Autowired
@@ -16,10 +18,25 @@ public class ReviewService {
 
     public ReviewDTO createReview(final ReviewDetailsDTO resource,String sku, int userId) throws IOException {
         //Verficar sku com request
-
-        Review review = new Review(resource.getText(), resource.getRating(),sku,userId);
-        ReviewDTO reviewDTO = new ReviewDTO(review);
-        repository.save(review);
+        ReviewDTO reviewDTO = null;
+        int statusCode = getStatusCodeOfProduct(sku);
+        if (statusCode == 200){
+            Review review = new Review(resource.getText(), resource.getRating(),sku,userId);
+            reviewDTO = new ReviewDTO(review);
+            repository.save(review);
+        }
         return reviewDTO;
+    }
+
+    public int getStatusCodeOfProduct(String sku){
+        int statusCode = 0;
+        try{
+            URL url = new URL("localhost:8081/products/" + sku);
+            HttpURLConnection http = (HttpURLConnection)url.openConnection();
+            statusCode = http.getResponseCode();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return statusCode;
     }
 }
