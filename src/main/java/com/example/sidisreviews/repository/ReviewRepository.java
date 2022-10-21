@@ -23,4 +23,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("update Review u set u.status = :status")
     void updateReview(@Param("status") String status);
 
+    @Query("select f from Review f where f.sku = :sku and f.status = 'APPROVED' order by f.creationDateTime desc ")
+    Page<ReviewDTO> findAllApprovedReviews(@Param("sku") String sku, Pageable paging);
+
+    @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.userid = :idUser")
+    Page<ReviewDTO> findAllReviewsByUser(@Param("idUser") int idUser,Pageable paging);
+
+    @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.sku = :sku")
+    Page<ReviewDTO> findAllReviewsBySku(@Param("sku") String sku);
 }

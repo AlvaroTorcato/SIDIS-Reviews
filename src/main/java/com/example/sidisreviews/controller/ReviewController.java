@@ -1,9 +1,6 @@
 package com.example.sidisreviews.controller;
 
-import com.example.sidisreviews.model.ChangeStatus;
-import com.example.sidisreviews.model.Review;
-import com.example.sidisreviews.model.ReviewDTO;
-import com.example.sidisreviews.model.ReviewDetailsDTO;
+import com.example.sidisreviews.model.*;
 import com.example.sidisreviews.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,9 +32,27 @@ public class ReviewController {
     List<ReviewDTO> findAllReviewsPending(@RequestParam Integer pageNo, @RequestParam Integer pageSize){
         return service.findAllReviewsPending(pageNo,pageSize);
     }
+
     @Operation(summary = "Change the status of the review")
     @PutMapping(value = "/pending/{idReview}")
     public ReviewDTO changeStatus(@PathVariable("idReview") final int idReview, @RequestBody final ChangeStatus resource){
         return service.changeStatus(idReview,resource);
+    }
+
+    @Operation(summary = "Get reviews approved")
+    @GetMapping(value = "/{sku}")
+    List<ReviewDTO> findAllReviews(@PathVariable("sku") final String sku,@RequestParam Integer pageNo, @RequestParam Integer pageSize){
+        return service.findAllApprovedReviews(sku,pageNo,pageSize);
+    }
+
+    @Operation(summary = "Gets all reviews that the user made")
+    @GetMapping(value = "/user/{userId}")
+    List<ReviewDTO> findAllReviewsByUser(@RequestParam Integer pageNo, @RequestParam Integer pageSize,@PathVariable("userId") int userId){
+        return service.findAllReviewsByUser(pageNo,pageSize,userId);
+    }
+    @Operation(summary = "Gets the rating of the given sku")
+    @GetMapping(value = "/{sku}/rating")
+    public AggregateRating findAggregateRatingBySku(@PathVariable("sku") String sku){
+        return service.findAllRates(sku);
     }
 }

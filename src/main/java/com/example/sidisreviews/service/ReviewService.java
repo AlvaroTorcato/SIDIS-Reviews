@@ -1,9 +1,6 @@
 package com.example.sidisreviews.service;
 
-import com.example.sidisreviews.model.ChangeStatus;
-import com.example.sidisreviews.model.Review;
-import com.example.sidisreviews.model.ReviewDTO;
-import com.example.sidisreviews.model.ReviewDetailsDTO;
+import com.example.sidisreviews.model.*;
 import com.example.sidisreviews.repository.ReviewRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +46,20 @@ public class ReviewService {
         return reviewDTO;
     }
 
+    public List<ReviewDTO> findAllApprovedReviews(String sku,Integer pageNo,Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Page<ReviewDTO> review =  repository.findAllApprovedReviews(sku,paging);
+        List<ReviewDTO> reviews = review.getContent();
+        return reviews;
+    }
+
+    public List<ReviewDTO> findAllReviewsByUser(Integer pageNo,Integer pageSize, int userId) {
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Page<ReviewDTO> review= repository.findAllReviewsByUser(userId,paging);
+        List<ReviewDTO> reviews = review.getContent();
+        return reviews;
+    }
+
     public int getStatusCodeOfProduct(String sku){
         int statusCode;
         try{
@@ -63,5 +74,12 @@ public class ReviewService {
             throw new RuntimeException(e);
         }
         return statusCode;
+    }
+
+    public AggregateRating findAllRates(String sku) {
+        Page<ReviewDTO> review= repository.findAllReviewsBySku(sku);
+        List<ReviewDTO> reviews = review.getContent();
+        AggregateRating rating = new AggregateRating(reviews);
+        return rating;
     }
 }
