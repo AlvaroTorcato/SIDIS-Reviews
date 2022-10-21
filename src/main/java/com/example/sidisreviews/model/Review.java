@@ -46,22 +46,20 @@ public class Review implements Serializable {
     private String sku;
 
     @Column(nullable = true)
-    private String userid;
+    private int userid;
 
 
     public Review() {
     }
 
-    public Review(String text, float rating, String sku, String userid) throws IOException {
+    public Review(String text, float rating, String sku, int userid) throws IOException {
         this.status = "PENDING";
-        this.text = text;
+        setText(text);
         setRating(rating);
-        Date dNow = new Date();
-        LocalDate localDate = dNow.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        int month = localDate.getMonthValue();
-        int day = localDate.getDayOfMonth();
+        int month = getMonth();
+        int day = getDayOfMonth();
         retrieveDataFromApi(day,month);
-        setCreationDateTime(dNow);
+        setCreationDateTime(getDate());
         this.totalVotes = 0;
         this.upVotes = 0;
         this.downVotes = 0;
@@ -90,6 +88,9 @@ public class Review implements Serializable {
     }
 
     public void setText(String text) {
+        if (text == null){
+            this.text = "";
+        }
         this.text = text;
     }
 
@@ -104,7 +105,12 @@ public class Review implements Serializable {
         else if (rating % 0.5 != 0 ) {
             throw new IllegalArgumentException("'rating' can have 0.5 stars");
         }
-        this.rating = rating;
+        else if (rating == 0.0f){
+            this.rating = 0;
+        }
+        else {
+            this.rating = rating;
+        }
     }
 
     public Date getCreationDateTime() {
@@ -173,11 +179,28 @@ public class Review implements Serializable {
         this.sku = sku;
     }
 
-    public String getUserid() {
+    public int getUserid() {
         return userid;
     }
 
-    public void setUserid(String userid) {
+    public void setUserid(int userid) {
         this.userid = userid;
+    }
+
+    public int getMonth(){
+        Date dNow = getDate();
+        LocalDate localDate = dNow.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return localDate.getMonthValue();
+    }
+
+    public int getDayOfMonth(){
+        Date dNow = getDate();
+        LocalDate localDate = dNow.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return localDate.getDayOfMonth();
+    }
+
+    public Date getDate(){
+        Date dNow = new Date();
+        return dNow;
     }
 }
