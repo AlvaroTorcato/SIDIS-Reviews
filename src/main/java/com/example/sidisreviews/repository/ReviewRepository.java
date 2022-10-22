@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.status = 'PENDING'")
@@ -30,5 +31,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<ReviewDTO> findAllReviewsByUser(@Param("idUser") int idUser,Pageable paging);
 
     @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.sku = :sku")
-    Page<ReviewDTO> findAllReviewsBySku(@Param("sku") String sku);
+    List<ReviewDTO> findAllReviewsBySku(@Param("sku") String sku);
+
+    @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.id = :reviewId and f.status = 'APPROVED'")
+    ReviewDTO findReviewByIdAndApproved(int reviewId);
 }

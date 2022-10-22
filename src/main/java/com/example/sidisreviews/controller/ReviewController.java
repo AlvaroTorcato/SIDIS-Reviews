@@ -55,4 +55,10 @@ public class ReviewController {
     public AggregateRating findAggregateRatingBySku(@PathVariable("sku") String sku){
         return service.findAllRates(sku);
     }
+
+    @Operation(summary = "Get reviews by id")
+    @GetMapping(value = "/search/{reviewId}")
+    ReviewDTO findReviewById(@PathVariable("reviewId") int reviewId){
+        return service.findReviewById(reviewId);
+    }
 }

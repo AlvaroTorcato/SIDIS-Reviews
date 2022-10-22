@@ -77,9 +77,16 @@ public class ReviewService {
     }
 
     public AggregateRating findAllRates(String sku) {
-        Page<ReviewDTO> review= repository.findAllReviewsBySku(sku);
-        List<ReviewDTO> reviews = review.getContent();
-        AggregateRating rating = new AggregateRating(reviews);
+        List<ReviewDTO> review= repository.findAllReviewsBySku(sku);
+        AggregateRating rating = new AggregateRating(review);
         return rating;
+    }
+
+    public ReviewDTO findReviewById(int reviewId) {
+        ReviewDTO review= repository.findReviewByIdAndApproved(reviewId);
+        if (review == null){
+            throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Review Not Found");
+        }
+        return review;
     }
 }
