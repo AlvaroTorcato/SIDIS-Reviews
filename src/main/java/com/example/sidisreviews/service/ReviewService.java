@@ -61,18 +61,8 @@ public class ReviewService {
     }
 
     public int getStatusCodeOfProduct(String sku){
-        int statusCode;
-        try{
-            String urlRequest = "http://localhost:8081/products/" + sku;
-            URL url = new URL(urlRequest);
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-
-            statusCode = connection.getResponseCode();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String urlRequest = "http://localhost:8081/products/" + sku;
+        int statusCode = getStatusOfRequest(urlRequest);
         return statusCode;
     }
 
@@ -88,5 +78,28 @@ public class ReviewService {
             throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Review Not Found");
         }
         return review;
+    }
+
+    public void deleteById(int idReview){
+        String urlRequest = "http://localhost:8083/votes/search/" + idReview;
+        int statusCode = getStatusOfRequest(urlRequest);
+        if (statusCode == 404){
+            repository.deleteByIdReview(idReview);
+        }
+    }
+
+    public int getStatusOfRequest(String urlRequest){
+        int statusCode;
+        try{
+            URL url = new URL(urlRequest);
+            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            statusCode = connection.getResponseCode();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return statusCode;
     }
 }

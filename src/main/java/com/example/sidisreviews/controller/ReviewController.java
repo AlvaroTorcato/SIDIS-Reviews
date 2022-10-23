@@ -61,4 +61,11 @@ public class ReviewController {
     ReviewDTO findReviewById(@PathVariable("reviewId") int reviewId){
         return service.findReviewById(reviewId);
     }
+
+    @Operation(summary = "Delete a review")
+    @DeleteMapping(value = "/{idReview}")
+    public ResponseEntity<Review> delete(@PathVariable("idReview") final int id) {
+        service.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

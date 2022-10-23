@@ -35,4 +35,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.id = :reviewId and f.status = 'APPROVED'")
     ReviewDTO findReviewByIdAndApproved(int reviewId);
+    @Modifying
+    @Query("delete from Review f where f.id = :idReview")
+    void deleteByIdReview(@Param("idReview") int idReview);
 }
