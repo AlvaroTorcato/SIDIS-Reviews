@@ -27,12 +27,17 @@ public class ReviewService {
     @Autowired
     private ReviewRepository repository;
 
-    public ReviewDTO createReview(final ReviewDetailsDTO resource,String sku, int userId) throws IOException {
+    public ReviewDTO createReview(final ReviewDetailsDTO resource,String sku,HttpServletRequest request) throws IOException {
         int statusCode = getStatusCodeOfProduct(sku);
         if (statusCode == 404){
             throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Product Not Found");
         }
-        Review review = new Review(resource.getText(), resource.getRating(),sku,userId);
+        String jwt = parseJwt(request);
+        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        if (user.getRoles() != "[MODERADOR]" || user.getRoles() != "[COSTUMER]"){
+            throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
+        }
+        Review review = new Review(resource.getText(), resource.getRating(),sku, user.getId());
         repository.save(review);
         ReviewDTO reviewDTO = new ReviewDTO(review);
         return reviewDTO;
@@ -67,9 +72,14 @@ public class ReviewService {
         return reviews;
     }
 
-    public List<ReviewDTO> findAllReviewsByUser(Integer pageNo,Integer pageSize, int userId) {
+    public List<ReviewDTO> findAllReviewsByUser(Integer pageNo,Integer pageSize, HttpServletRequest request ) {
+        String jwt = parseJwt(request);
+        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        if (user.getRoles() != "[MODERADOR]" || user.getRoles() != "[COSTUMER]"){
+            throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
+        }
         Pageable paging = PageRequest.of(pageNo, pageSize);
-        Page<ReviewDTO> review= repository.findAllReviewsByUser(userId,paging);
+        Page<ReviewDTO> review= repository.findAllReviewsByUser(user.getId(),paging);
         List<ReviewDTO> reviews = review.getContent();
         return reviews;
     }
@@ -94,10 +104,16 @@ public class ReviewService {
         return review;
     }
 
-    public void deleteById(int idReview){
+    public void deleteById(int idReview,HttpServletRequest request){
+        String jwt = parseJwt(request);
+        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        if (user.getRoles() != "[MODERADOR]" || user.getRoles() != "[COSTUMER]"){
+            throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
+        }
+        ReviewDTO review= findReviewById(idReview);
         String urlRequest = "http://localhost:8083/votes/search/" + idReview;
         int statusCode = getStatusOfRequest(urlRequest);
-        if (statusCode == 404){
+        if (statusCode == 404 && review.getUserid() == user.getId()){
             repository.deleteByIdReview(idReview);
         }
     }

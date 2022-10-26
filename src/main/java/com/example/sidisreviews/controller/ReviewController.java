@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class ReviewController {
     @Operation(summary = "Create a review")
     @PostMapping(value = "/{sku}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ReviewDTO create(@RequestBody final ReviewDetailsDTO resource, @PathVariable("sku") final String sku, @RequestParam int userId) throws IOException {
-        return service.createReview(resource,sku, userId);
+    public ReviewDTO create(@RequestBody final ReviewDetailsDTO resource, @PathVariable("sku") final String sku, HttpServletRequest request) throws IOException {
+        return service.createReview(resource,sku, request);
     }
 
     @Operation(summary = "Get reviews approved")
@@ -35,8 +36,8 @@ public class ReviewController {
 
     @Operation(summary = "Gets all reviews that the user made")
     @GetMapping(value = "/user/{userId}")
-    List<ReviewDTO> findAllReviewsByUser(@RequestParam Integer pageNo, @RequestParam Integer pageSize,@PathVariable("userId") int userId){
-        return service.findAllReviewsByUser(pageNo,pageSize,userId);
+    List<ReviewDTO> findAllReviewsByUser(@RequestParam Integer pageNo, @RequestParam Integer pageSize, HttpServletRequest request){
+        return service.findAllReviewsByUser(pageNo,pageSize,request);
     }
     @Operation(summary = "Gets the rating of the given sku")
     @GetMapping(value = "/{sku}/rating")
@@ -52,8 +53,8 @@ public class ReviewController {
 
     @Operation(summary = "Delete a review")
     @DeleteMapping(value = "/{idReview}")
-    public ResponseEntity<Review> delete(@PathVariable("idReview") final int id) {
-        service.deleteById(id);
+    public ResponseEntity<Review> delete(@PathVariable("idReview") final int id,HttpServletRequest request) {
+        service.deleteById(id,request);
         return ResponseEntity.noContent().build();
     }
 }
