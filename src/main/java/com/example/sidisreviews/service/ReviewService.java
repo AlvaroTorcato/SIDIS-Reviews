@@ -3,15 +3,19 @@ package com.example.sidisreviews.service;
 import com.example.sidisreviews.model.*;
 import com.example.sidisreviews.repository.ReviewRepository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -33,13 +37,23 @@ public class ReviewService {
         ReviewDTO reviewDTO = new ReviewDTO(review);
         return reviewDTO;
     }
-    public List<ReviewDTO> findAllReviewsPending(Integer pageNo, Integer pageSize) {
+    public List<ReviewDTO> findAllReviewsPending(Integer pageNo, Integer pageSize,HttpServletRequest request) {
+        String jwt = parseJwt(request);
+        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        if (user.getRoles() != "[MODERADOR]"){
+            throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
+        }
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<ReviewDTO> review = repository.findAllPendingReviews(paging);
         List<ReviewDTO> reviews = review.getContent();
         return reviews;
     }
-    public ReviewDTO changeStatus(int idReview, ChangeStatus resource) {
+    public ReviewDTO changeStatus(int idReview, ChangeStatus resource, HttpServletRequest request) {
+        String jwt = parseJwt(request);
+        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        if (user.getRoles() != "[MODERADOR]"){
+            throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
+        }
         String updateString = resource.updateString();
         repository.updateReview(updateString);
         ReviewDTO reviewDTO = repository.findReviewById(idReview);
@@ -101,5 +115,39 @@ public class ReviewService {
             throw new RuntimeException(e);
         }
         return statusCode;
+    }
+
+    private String parseJwt(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+            return headerAuth.substring(7, headerAuth.length());
+        }
+
+        return null;
+    }
+
+    public UserDetailsDTO makeRequestToAutentication(String jwt){
+        String urlRequest = "http://localhost:8084/auth/search" + jwt;
+        UserDetailsDTO user = null;
+        try {
+            InputStream responseStream = openConn(urlRequest).getInputStream();
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            user = mapper.readValue(responseStream, UserDetailsDTO.class);
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+
+        return user;
+    }
+    private HttpURLConnection openConn(String baseUrl) throws IOException {
+
+        URL url = new URL(baseUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestProperty("accept", "application/json");
+
+        return connection;
     }
 }

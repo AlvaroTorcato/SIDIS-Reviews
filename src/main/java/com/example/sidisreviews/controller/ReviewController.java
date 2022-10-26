@@ -27,18 +27,6 @@ public class ReviewController {
         return service.createReview(resource,sku, userId);
     }
 
-    @Operation(summary = "Get all pending reviews")
-    @GetMapping(value = "/pending")
-    List<ReviewDTO> findAllReviewsPending(@RequestParam Integer pageNo, @RequestParam Integer pageSize){
-        return service.findAllReviewsPending(pageNo,pageSize);
-    }
-
-    @Operation(summary = "Change the status of the review")
-    @PutMapping(value = "/pending/{idReview}")
-    public ReviewDTO changeStatus(@PathVariable("idReview") final int idReview, @RequestBody final ChangeStatus resource){
-        return service.changeStatus(idReview,resource);
-    }
-
     @Operation(summary = "Get reviews approved")
     @GetMapping(value = "/{sku}")
     List<ReviewDTO> findAllReviews(@PathVariable("sku") final String sku,@RequestParam Integer pageNo, @RequestParam Integer pageSize){
