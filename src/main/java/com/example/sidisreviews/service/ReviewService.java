@@ -115,6 +115,9 @@ public class ReviewService {
         ReviewDTO review= findReviewById(idReview);
         String urlRequest = "http://localhost:8083/votes/search/" + idReview;
         int statusCode = getStatusOfRequest(urlRequest);
+        //7System.out.println(statusCode);
+        //System.out.println(review.getUserid());
+        //System.out.println(user.getId());
         if (statusCode == 404 && review.getUserid() == user.getId()){
             repository.deleteByIdReview(idReview);
         }
