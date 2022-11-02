@@ -62,7 +62,7 @@ public class ReviewService {
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
         String updateString = resource.updateString();
-        repository.updateReview(updateString);
+        repository.updateReview(updateString,idReview);
         ReviewDTO reviewDTO = repository.findReviewById(idReview);
         return reviewDTO;
     }

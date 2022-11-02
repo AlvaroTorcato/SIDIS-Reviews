@@ -21,8 +21,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Modifying
     @Transactional
-    @Query("update Review u set u.status = :status")
-    void updateReview(@Param("status") String status);
+    @Query("update Review u set u.status = :status where u.id = :idReview")
+    void updateReview(@Param("status") String status, @Param("idReview") int idReview);
 
     @Query("select f from Review f where f.sku = :sku and f.status = 'APPROVED' order by f.creationDateTime desc ")
     Page<ReviewDTO> findAllApprovedReviews(@Param("sku") String sku, Pageable paging);
