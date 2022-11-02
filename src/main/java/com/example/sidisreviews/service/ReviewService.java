@@ -112,11 +112,11 @@ public class ReviewService {
         if (!user.getRoles().equals("[MODERATOR]") && !user.getRoles().equals("[COSTUMER]")){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
-        ReviewDTO review= findReviewById(idReview);
+        Review review= repository.findReviewByIdAndIsApproved(idReview);
         String urlRequest = "http://localhost:8083/votes/search/" + idReview;
         int statusCode = getStatusOfRequest(urlRequest);
         if (statusCode == 404 && review.getUserid() == user.getId()){
-            repository.deleteById((long) idReview);
+            repository.delete(review);
         }
     }
 
