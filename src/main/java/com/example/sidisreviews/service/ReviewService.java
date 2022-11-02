@@ -34,7 +34,9 @@ public class ReviewService {
         }
         String jwt = parseJwt(request);
         UserDetailsDTO user = makeRequestToAutentication(jwt);
-        if (user.getRoles() != "[MODERADOR]" || user.getRoles() != "[COSTUMER]"){
+
+        if (!user.getRoles().equals("[MODERATOR]") && !user.getRoles().equals("[COSTUMER]")){
+            System.out.println(user.getRoles());
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
         Review review = new Review(resource.getText(), resource.getRating(),sku, user.getId());
@@ -45,7 +47,7 @@ public class ReviewService {
     public List<ReviewDTO> findAllReviewsPending(Integer pageNo, Integer pageSize,HttpServletRequest request) {
         String jwt = parseJwt(request);
         UserDetailsDTO user = makeRequestToAutentication(jwt);
-        if (user.getRoles() != "[MODERADOR]"){
+        if (!user.getRoles().equals("[MODERATOR]")){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
         Pageable paging = PageRequest.of(pageNo, pageSize);
@@ -56,7 +58,7 @@ public class ReviewService {
     public ReviewDTO changeStatus(int idReview, ChangeStatus resource, HttpServletRequest request) {
         String jwt = parseJwt(request);
         UserDetailsDTO user = makeRequestToAutentication(jwt);
-        if (user.getRoles() != "[MODERADOR]"){
+        if (!user.getRoles().equals("[MODERATOR]")){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
         String updateString = resource.updateString();
@@ -75,7 +77,7 @@ public class ReviewService {
     public List<ReviewDTO> findAllReviewsByUser(Integer pageNo,Integer pageSize, HttpServletRequest request ) {
         String jwt = parseJwt(request);
         UserDetailsDTO user = makeRequestToAutentication(jwt);
-        if (user.getRoles() != "[MODERADOR]" || user.getRoles() != "[COSTUMER]"){
+        if (!user.getRoles().equals("[MODERATOR]") && !user.getRoles().equals("[COSTUMER]")){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
         Pageable paging = PageRequest.of(pageNo, pageSize);
@@ -107,7 +109,7 @@ public class ReviewService {
     public void deleteById(int idReview,HttpServletRequest request){
         String jwt = parseJwt(request);
         UserDetailsDTO user = makeRequestToAutentication(jwt);
-        if (user.getRoles() != "[MODERADOR]" || user.getRoles() != "[COSTUMER]"){
+        if (!user.getRoles().equals("[MODERATOR]") && !user.getRoles().equals("[COSTUMER]")){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
         ReviewDTO review= findReviewById(idReview);
@@ -144,7 +146,7 @@ public class ReviewService {
     }
 
     public UserDetailsDTO makeRequestToAutentication(String jwt){
-        String urlRequest = "http://localhost:8084/auth/search" + jwt;
+        String urlRequest = "http://localhost:8084/auth/search/" + jwt;
         UserDetailsDTO user = null;
         try {
             InputStream responseStream = openConn(urlRequest).getInputStream();
