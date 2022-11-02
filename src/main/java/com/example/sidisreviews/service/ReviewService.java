@@ -116,7 +116,7 @@ public class ReviewService {
         String urlRequest = "http://localhost:8083/votes/search/" + idReview;
         int statusCode = getStatusOfRequest(urlRequest);
         if (statusCode == 404 && review.getUserid() == user.getId()){
-            repository.deleteByIdReview(idReview);
+            repository.deleteById((long) idReview);
         }
     }
 
