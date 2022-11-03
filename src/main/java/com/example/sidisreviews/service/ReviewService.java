@@ -93,8 +93,11 @@ public class ReviewService {
     }
 
     public AggregateRating findAllRates(String sku) {
-        List<ReviewDTO> review= repository.findAllReviewsBySku(sku);
+        List<ReviewDTO> review= repository.findAllAprovedReviewsBySku(sku);
         AggregateRating rating = new AggregateRating(review);
+        if (rating.getSku().equals("0")){
+            throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Reviews Not Found");
+        }
         return rating;
     }
 

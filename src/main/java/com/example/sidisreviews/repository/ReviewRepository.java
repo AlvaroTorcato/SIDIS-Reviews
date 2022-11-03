@@ -30,8 +30,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.userid = :idUser")
     Page<ReviewDTO> findAllReviewsByUser(@Param("idUser") int idUser,Pageable paging);
 
-    @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.sku = :sku")
-    List<ReviewDTO> findAllReviewsBySku(@Param("sku") String sku);
+    @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.sku = :sku and f.status = 'APPROVED'")
+    List<ReviewDTO> findAllAprovedReviewsBySku(@Param("sku") String sku);
 
     @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.id = :reviewId and f.status = 'APPROVED'")
     ReviewDTO findReviewByIdAndApproved(int reviewId);

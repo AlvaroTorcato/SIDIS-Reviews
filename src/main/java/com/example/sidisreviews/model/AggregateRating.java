@@ -154,7 +154,10 @@ public class AggregateRating {
 
     public void setCountersAndFrequencies(List<ReviewDTO> list){
         int soma = 0;
-        this.sku = list.get(1).getSku();
+        try {
+
+
+        this.sku = list.get(0).getSku();
         for(int i = 0 ; i < list.size() ; i++){
             float rating = list.get(i).getRating();
             if (rating >= 0 && rating < 0.5){
@@ -186,5 +189,9 @@ public class AggregateRating {
         this.frequency5 = ((float) this.count5) / list.size() * 100;
 
         this.average = soma / list.size();
+        }
+        catch (Exception e){
+            this.sku="0";
+        }
     }
 }
