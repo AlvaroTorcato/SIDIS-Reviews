@@ -52,4 +52,17 @@ public class ReviewDTO {
         this.sku = review.getSku();
         this.userid = review.getUserid();
     }
+    public ReviewDTO(ReviewAPOD review) {
+        this.id = review.getId();
+        this.status = review.getStatus();
+        this.text = review.getText();
+        this.rating = review.getRating();
+        this.totalVotes = review.getTotalVotes();
+        this.upVotes = review.getUpVotes();
+        this.downVotes = review.getDownVotes();
+        this.creationDateTime = review.getCreationDateTime();
+        this.funFact = review.getFunFact();
+        this.sku = review.getSku();
+        this.userid = review.getUserid();
+    }
 }

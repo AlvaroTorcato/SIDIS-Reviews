@@ -27,6 +27,9 @@ public class ReviewService {
     @Autowired
     private ReviewRepository repository;
 
+    @Autowired
+    private RequestService service;
+
     public ReviewDTO createReview(final ReviewDetailsDTO resource,String sku,HttpServletRequest request) throws IOException {
         int statusCode = getStatusCodeOfProduct(sku);
         if (statusCode == 404){
@@ -53,6 +56,10 @@ public class ReviewService {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<ReviewDTO> review = repository.findAllPendingReviews(paging);
         List<ReviewDTO> reviews = review.getContent();
+        /*if (reviews.isEmpty()){
+            reviews = service.
+        }
+        */
         return reviews;
     }
     public ReviewDTO changeStatus(int idReview, ChangeStatus resource, HttpServletRequest request) {
@@ -101,7 +108,10 @@ public class ReviewService {
     public ReviewDTO findReviewById(int reviewId) {
         ReviewDTO review= repository.findReviewByIdAndApproved(reviewId);
         if (review == null){
-            throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Review Not Found");
+            review = service.retriveReviewFromApi(reviewId);
+            if (review == null){
+                throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Review Not Found");
+            }
         }
         return review;
     }
