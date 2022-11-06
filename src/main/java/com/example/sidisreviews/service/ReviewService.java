@@ -90,6 +90,7 @@ public class ReviewService {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<ReviewDTO> review= repository.findAllReviewsByUser(user.getId(),paging);
         List<ReviewDTO> reviews = review.getContent();
+        System.out.println(reviews);
         return reviews;
     }
 
@@ -128,8 +129,14 @@ public class ReviewService {
         ReviewDTO review= findReviewById(idReview);
         String urlRequest = "http://localhost:8083/votes/search/" + idReview;
         int statusCode = service.getStatusOfRequest(urlRequest);
-        if (statusCode == 404 && review.getUserid() == user.getId()){
+        System.out.println(statusCode);
+        if (statusCode==200){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Review has votes");
+        }
+        else if (statusCode == 404 && review.getUserid() == user.getId()){
             repository.deleteByIdReview(idReview);
+            throw new ResponseStatusException(HttpStatus.OK);
+
         }
     }
 
