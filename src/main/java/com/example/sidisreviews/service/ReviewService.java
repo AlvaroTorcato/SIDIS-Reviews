@@ -35,8 +35,8 @@ public class ReviewService {
         if (statusCode == 404){
             throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Product Not Found");
         }
-        String jwt = parseJwt(request);
-        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        String jwt = service.parseJwt(request);
+        UserDetailsDTO user = service.makeRequestToAutentication(jwt);
 
         if (!user.getRoles().equals("[MODERATOR]") && !user.getRoles().equals("[COSTUMER]")){
             System.out.println(user.getRoles());
@@ -48,8 +48,8 @@ public class ReviewService {
         return reviewDTO;
     }
     public List<ReviewDTO> findAllReviewsPending(Integer pageNo, Integer pageSize,HttpServletRequest request) {
-        String jwt = parseJwt(request);
-        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        String jwt = service.parseJwt(request);
+        UserDetailsDTO user = service.makeRequestToAutentication(jwt);
         if (!user.getRoles().equals("[MODERATOR]")){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
@@ -63,8 +63,8 @@ public class ReviewService {
         return reviews;
     }
     public ReviewDTO changeStatus(int idReview, ChangeStatus resource, HttpServletRequest request) {
-        String jwt = parseJwt(request);
-        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        String jwt = service.parseJwt(request);
+        UserDetailsDTO user = service.makeRequestToAutentication(jwt);
         if (!user.getRoles().equals("[MODERATOR]")){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
@@ -82,8 +82,8 @@ public class ReviewService {
     }
 
     public List<ReviewDTO> findAllReviewsByUser(Integer pageNo,Integer pageSize, HttpServletRequest request ) {
-        String jwt = parseJwt(request);
-        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        String jwt = service.parseJwt(request);
+        UserDetailsDTO user = service.makeRequestToAutentication(jwt);
         if (!user.getRoles().equals("[MODERATOR]") && !user.getRoles().equals("[COSTUMER]")){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
@@ -95,7 +95,7 @@ public class ReviewService {
 
     public int getStatusCodeOfProduct(String sku){
         String urlRequest = "http://localhost:8081/products/" + sku;
-        int statusCode = getStatusOfRequest(urlRequest);
+        int statusCode = service.getStatusOfRequest(urlRequest);
         return statusCode;
     }
 
@@ -120,68 +120,50 @@ public class ReviewService {
     }
 
     public void deleteById(int idReview,HttpServletRequest request){
-        String jwt = parseJwt(request);
-        UserDetailsDTO user = makeRequestToAutentication(jwt);
+        String jwt = service.parseJwt(request);
+        UserDetailsDTO user = service.makeRequestToAutentication(jwt);
         if (!user.getRoles().equals("[MODERATOR]") && !user.getRoles().equals("[COSTUMER]")){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Can´t be accessed by this user");
         }
         ReviewDTO review= findReviewById(idReview);
         String urlRequest = "http://localhost:8083/votes/search/" + idReview;
-        int statusCode = getStatusOfRequest(urlRequest);
-        //7System.out.println(statusCode);
-        //System.out.println(review.getUserid());
-        //System.out.println(user.getId());
+        int statusCode = service.getStatusOfRequest(urlRequest);
         if (statusCode == 404 && review.getUserid() == user.getId()){
             repository.deleteByIdReview(idReview);
         }
     }
 
-    public int getStatusOfRequest(String urlRequest){
-        int statusCode;
-        try{
-            URL url = new URL(urlRequest);
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-
-            statusCode = connection.getResponseCode();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public ReviewDTO updateReviewWithVote(int reviewId, String status) {
+        ReviewDTO review= repository.findReviewByIdAndApproved(reviewId);
+        if (review == null){
+            review = service.retriveReviewFromApi(reviewId);
+            if (review == null){
+                throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Review Not Found");
+            }
+            return service.updateReviewFromApi(reviewId,status);
         }
-        return statusCode;
+        else {
+            int totalVotes = review.getTotalVotes();
+            int upVotes = review.getUpVotes();
+            int downVotes = review.getDownVotes();
+            totalVotes += 1;
+            if (status == "true"){
+                upVotes += 1;
+            }
+            else {
+                downVotes += 1;
+            }
+            repository.updateReviewWithVote(review.getId(),upVotes,downVotes,totalVotes);
+        }
+        return repository.findReviewByIdAndApproved(reviewId);
     }
 
-    private String parseJwt(HttpServletRequest request) {
-        String headerAuth = request.getHeader("Authorization");
-
-        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7, headerAuth.length());
+    public List<ReviewDTO> orderAllReviewsByVotes(String sku) {
+        int statusCode = getStatusCodeOfProduct(sku);
+        if (statusCode == 404){
+            throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Product Not Found");
         }
-
-        return null;
-    }
-
-    public UserDetailsDTO makeRequestToAutentication(String jwt){
-        String urlRequest = "http://localhost:8084/auth/search/" + jwt;
-        UserDetailsDTO user = null;
-        try {
-            InputStream responseStream = openConn(urlRequest).getInputStream();
-
-            ObjectMapper mapper = new ObjectMapper();
-
-            user = mapper.readValue(responseStream, UserDetailsDTO.class);
-        } catch (IOException e) {
-            System.out.println(e);
-        }
-
-        return user;
-    }
-    private HttpURLConnection openConn(String baseUrl) throws IOException {
-
-        URL url = new URL(baseUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestProperty("accept", "application/json");
-
-        return connection;
+        List<ReviewDTO> reviewDTOS = repository.orderByVotes(sku);
+        return reviewDTOS;
     }
 }

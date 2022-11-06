@@ -38,4 +38,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Modifying
     @Query("delete from Review f where f.id = :idReview")
     void deleteByIdReview(@Param("idReview") int idReview);
+
+    @Modifying
+    @Transactional
+    @Query("update Review u set u.upVotes = :upVotes , u.downVotes= :downVotes , u.totalVotes = :totalVotes where u.id = :idReview")
+    void updateReviewWithVote(@Param("idReview") int idReview, @Param("upVotes") int upVotes, @Param("downVotes") int downVotes, @Param("totalVotes") int totalVotes);
+
+    @Query("select new com.example.sidisreviews.model.ReviewDTO(f) from Review f where f.sku = :sku and f.status = 'APPROVED' order by f.upVotes desc ,f.creationDateTime desc ")
+    List<ReviewDTO> orderByVotes(String sku);
 }

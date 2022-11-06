@@ -35,7 +35,7 @@ public class ReviewController {
     }
 
     @Operation(summary = "Gets all reviews that the user made")
-    @GetMapping(value = "/user/{userId}")
+    @GetMapping(value = "/user")
     List<ReviewDTO> findAllReviewsByUser(@RequestParam Integer pageNo, @RequestParam Integer pageSize, HttpServletRequest request){
         return service.findAllReviewsByUser(pageNo,pageSize,request);
     }
@@ -57,4 +57,16 @@ public class ReviewController {
         service.deleteById(id,request);
         return ResponseEntity.noContent().build();
     }
+    @Operation(summary = "Add vote to review")
+    @GetMapping(value = "/vote/{reviewId}/{string}")
+    ReviewDTO updateReviewWithVote(@PathVariable("reviewId") int reviewId,@PathVariable("string") String status){
+        return service.updateReviewWithVote(reviewId,status);
+    }
+
+    @Operation(summary = "Get all reviews order by total votes ")
+    @GetMapping(value = "/order/{sku}")
+    List<ReviewDTO> orderReviewsReviews(@PathVariable("sku") final String sku){
+        return service.orderAllReviewsByVotes(sku);
+    }
+
 }
