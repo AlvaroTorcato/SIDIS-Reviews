@@ -120,6 +120,15 @@ public class ReviewService {
         return review;
     }
 
+
+    public ReviewDTO findReviewByIdInternal(int reviewId) {
+        ReviewDTO review= repository.findReviewByIdAndApproved(reviewId);
+        if (review == null){
+            throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Review Not Found");
+        }
+        return review;
+    }
+
     public void deleteById(int idReview,HttpServletRequest request){
         String jwt = service.parseJwt(request);
         UserDetailsDTO user = service.makeRequestToAutentication(jwt);
@@ -163,6 +172,15 @@ public class ReviewService {
             repository.updateReviewWithVote(review.getId(),upVotes,downVotes,totalVotes);
         }
         return repository.findReviewByIdAndApproved(reviewId);
+    }
+
+    public ReviewDTO updateReviewWithVoteInternal(int reviewId, String status) {
+        ReviewDTO review= repository.findReviewByIdAndApproved(reviewId);
+
+        if (review == null){
+            throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Review Not Found");
+        }
+        return review;
     }
 
     public List<ReviewDTO> orderAllReviewsByVotes(String sku) {

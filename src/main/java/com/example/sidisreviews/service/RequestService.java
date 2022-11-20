@@ -38,7 +38,7 @@ public class RequestService {
     }
     */
     public ReviewDTO retriveReviewFromApi(int reviewId){
-        String baseUrl = baseURL+"search/" + reviewId;
+        String baseUrl = baseURL+"Internalsearch/" + reviewId;
         ReviewDTO review = null;
         try {
             InputStream responseStream = openConn(baseUrl).getInputStream();

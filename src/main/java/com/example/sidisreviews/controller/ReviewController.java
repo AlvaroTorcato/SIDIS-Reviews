@@ -51,6 +51,12 @@ public class ReviewController {
         return service.findReviewById(reviewId);
     }
 
+    @Operation(summary = "Get reviews by id to another API")
+    @GetMapping(value = "/Internalsearch/{reviewId}")
+    ReviewDTO findReviewByIdInternal(@PathVariable("reviewId") int reviewId){
+        return service.findReviewByIdInternal(reviewId);
+    }
+
     @Operation(summary = "Delete a review")
     @DeleteMapping(value = "/{idReview}")
     public ResponseEntity<Review> delete(@PathVariable("idReview") final int id,HttpServletRequest request) {
@@ -61,6 +67,12 @@ public class ReviewController {
     @GetMapping(value = "/vote/{reviewId}/{string}")
     ReviewDTO updateReviewWithVote(@PathVariable("reviewId") int reviewId,@PathVariable("string") String status){
         return service.updateReviewWithVote(reviewId,status);
+    }
+
+    @Operation(summary = "Add vote to review to another API")
+    @GetMapping(value = "/Internalvote/{reviewId}/{string}")
+    ReviewDTO updateReviewWithVoteInternal(@PathVariable("reviewId") int reviewId,@PathVariable("string") String status){
+        return service.updateReviewWithVoteInternal(reviewId,status);
     }
 
     @Operation(summary = "Get all reviews order by total votes ")
