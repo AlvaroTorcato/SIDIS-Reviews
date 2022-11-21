@@ -38,7 +38,7 @@ public class RequestService {
     }
     */
     public ReviewDTO retriveReviewFromApi(int reviewId){
-        String baseUrl = baseURL+"Internalsearch/" + reviewId;
+        String baseUrl = baseURL+"internalSearch/" + reviewId;
         ReviewDTO review = null;
         try {
             InputStream responseStream = openConn(baseUrl).getInputStream();
@@ -79,15 +79,28 @@ public class RequestService {
 
     public UserDetailsDTO makeRequestToAutentication(String jwt){
         String urlRequest = "http://localhost:8084/auth/search/" + jwt;
+        int statusCode=0;
         UserDetailsDTO user = null;
         try {
-            InputStream responseStream = openConn(urlRequest).getInputStream();
+            HttpURLConnection connection = openConn(urlRequest);
+            InputStream responseStream = connection.getInputStream();
 
             ObjectMapper mapper = new ObjectMapper();
-
+            statusCode = connection.getResponseCode();
             user = mapper.readValue(responseStream, UserDetailsDTO.class);
         } catch (IOException e) {
             System.out.println(e);
+        }
+        if (statusCode!=200){
+            try {
+                urlRequest = "http://localhost:8088/auth/search/" + jwt;
+                HttpURLConnection connection = openConn(urlRequest);
+                InputStream responseStream = connection.getInputStream();
+                ObjectMapper mapper = new ObjectMapper();
+                user = mapper.readValue(responseStream, UserDetailsDTO.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return user;
@@ -116,5 +129,62 @@ public class RequestService {
         ReviewDTO dto = new ReviewDTO(reviewDTO);
 
         return dto;
+    }
+
+    public List<ReviewDTO> retriveReviewsFromApi(String sku, Integer pageNo, Integer pageSize) {
+        String baseUrl = baseURL+"reviews/internalSearch/reviews/"+sku + "?pageNo=" + pageNo+ "&pageSize=" + pageSize;
+        List<ReviewAPOD> reviews = new ArrayList<>();
+        try {
+            InputStream responseStream = openConn(baseUrl).getInputStream();
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            reviews = Arrays.asList(mapper.readValue(responseStream, ReviewAPOD.class));
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+        List<ReviewDTO> productsDetails = new ArrayList<>();
+        for (ReviewAPOD product: reviews){
+            productsDetails.add(new ReviewDTO(product));
+        }
+        return productsDetails;
+    }
+
+    public List<ReviewDTO> retriveReviewsPendingFromApi(Integer pageNo, Integer pageSize) {
+        String baseUrl = baseURL+"/internalSearch/pending"+ "?pageNo=" + pageNo+ "&pageSize=" + pageSize;
+        List<ReviewAPOD> reviews = new ArrayList<>();
+        try {
+            InputStream responseStream = openConn(baseUrl).getInputStream();
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            reviews = Arrays.asList(mapper.readValue(responseStream, ReviewAPOD.class));
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+        List<ReviewDTO> reviewDetails = new ArrayList<>();
+        for (ReviewAPOD product: reviews){
+            reviewDetails.add(new ReviewDTO(product));
+        }
+        return reviewDetails;
+    }
+
+    public List<ReviewDTO> retriveReviewsUserFromApi(Integer pageNo, Integer pageSize, int id) {
+        String baseUrl = baseURL+"/internalSearch/user/"+ id + "?pageNo=" + pageNo+ "&pageSize=" + pageSize;
+        List<ReviewAPOD> reviews = new ArrayList<>();
+        try {
+            InputStream responseStream = openConn(baseUrl).getInputStream();
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            reviews = Arrays.asList(mapper.readValue(responseStream, ReviewAPOD.class));
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+        List<ReviewDTO> reviewDetails = new ArrayList<>();
+        for (ReviewAPOD product: reviews){
+            reviewDetails.add(new ReviewDTO(product));
+        }
+        return reviewDetails;
     }
 }

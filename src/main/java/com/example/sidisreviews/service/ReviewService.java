@@ -56,10 +56,12 @@ public class ReviewService {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<ReviewDTO> review = repository.findAllPendingReviews(paging);
         List<ReviewDTO> reviews = review.getContent();
-        /*if (reviews.isEmpty()){
-            reviews = service.
+        if (reviews.isEmpty()){
+            reviews = service.retriveReviewsPendingFromApi(pageNo, pageSize);
+            if (reviews.isEmpty()){
+                throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Reviews Not Found");
+            }
         }
-        */
         return reviews;
     }
     public ReviewDTO changeStatus(int idReview, ChangeStatus resource, HttpServletRequest request) {
@@ -78,6 +80,12 @@ public class ReviewService {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<ReviewDTO> review =  repository.findAllApprovedReviews(sku,paging);
         List<ReviewDTO> reviews = review.getContent();
+        if (reviews.isEmpty()){
+            List<ReviewDTO> reviewsApi = service.retriveReviewsFromApi(sku,pageNo,pageSize);
+            if (reviewsApi.isEmpty()){
+                throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Reviews Not Found");
+            }
+        }
         return reviews;
     }
 
@@ -90,6 +98,12 @@ public class ReviewService {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<ReviewDTO> review= repository.findAllReviewsByUser(user.getId(),paging);
         List<ReviewDTO> reviews = review.getContent();
+        if (reviews.isEmpty()){
+            reviews = service.retriveReviewsUserFromApi(pageNo,pageSize, user.getId());
+            if (reviews.isEmpty()){
+                throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Reviews Not Found");
+            }
+        }
         System.out.println(reviews);
         return reviews;
     }
@@ -97,6 +111,10 @@ public class ReviewService {
     public int getStatusCodeOfProduct(String sku){
         String urlRequest = "http://localhost:8081/products/" + sku;
         int statusCode = service.getStatusOfRequest(urlRequest);
+        if (statusCode == 404){
+            urlRequest = "http://localhost:8085/products/" + sku;
+            statusCode = service.getStatusOfRequest(urlRequest);
+        }
         return statusCode;
     }
 
@@ -190,5 +208,27 @@ public class ReviewService {
         }
         List<ReviewDTO> reviewDTOS = repository.orderByVotes(sku);
         return reviewDTOS;
+    }
+
+    public List<ReviewDTO> findAllApprovedReviewsInternal(String sku, Integer pageNo, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Page<ReviewDTO> review =  repository.findAllApprovedReviews(sku,paging);
+        List<ReviewDTO> reviews = review.getContent();
+        return reviews;
+    }
+
+    public List<ReviewDTO> findAllReviewsPendingInternal(Integer pageNo, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Page<ReviewDTO> review = repository.findAllPendingReviews(paging);
+        List<ReviewDTO> reviews = review.getContent();
+        return reviews;
+    }
+
+    public List<ReviewDTO> findAllReviewsByUserInternal(Integer pageNo, Integer pageSize, int userId) {
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Page<ReviewDTO> review= repository.findAllReviewsByUser(userId,paging);
+        List<ReviewDTO> reviews = review.getContent();
+        System.out.println(reviews);
+        return reviews;
     }
 }

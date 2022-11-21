@@ -27,6 +27,12 @@ public class ModeratorController {
         return service.findAllReviewsPending(pageNo,pageSize,request);
     }
 
+    @Operation(summary = "Get all pending reviews from another API")
+    @GetMapping(value = "/internalSearch/pending")
+    List<ReviewDTO> findAllReviewsPendingInternal(@RequestParam Integer pageNo, @RequestParam Integer pageSize){
+        return service.findAllReviewsPendingInternal(pageNo,pageSize);
+    }
+
     @Operation(summary = "Change the status of the review")
     @PutMapping(value = "/pending/{idReview}")
     public ReviewDTO changeStatus(@PathVariable("idReview") final int idReview, @RequestBody final ChangeStatus resource, HttpServletRequest request){

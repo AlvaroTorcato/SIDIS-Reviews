@@ -39,6 +39,11 @@ public class ReviewController {
     List<ReviewDTO> findAllReviewsByUser(@RequestParam Integer pageNo, @RequestParam Integer pageSize, HttpServletRequest request){
         return service.findAllReviewsByUser(pageNo,pageSize,request);
     }
+    @Operation(summary = "Gets all reviews that the user made from another API")
+    @GetMapping(value = "/internalSearch/user/{userId}")
+    List<ReviewDTO> findAllReviewsByUser(@RequestParam Integer pageNo, @RequestParam Integer pageSize, @PathVariable("userId") int userId){
+        return service.findAllReviewsByUserInternal(pageNo,pageSize,userId);
+    }
     @Operation(summary = "Gets the rating of the given sku")
     @GetMapping(value = "/{sku}/rating")
     public AggregateRating findAggregateRatingBySku(@PathVariable("sku") String sku){
@@ -52,7 +57,7 @@ public class ReviewController {
     }
 
     @Operation(summary = "Get reviews by id to another API")
-    @GetMapping(value = "/Internalsearch/{reviewId}")
+    @GetMapping(value = "/internalSearch/{reviewId}")
     ReviewDTO findReviewByIdInternal(@PathVariable("reviewId") int reviewId){
         return service.findReviewByIdInternal(reviewId);
     }
@@ -70,7 +75,7 @@ public class ReviewController {
     }
 
     @Operation(summary = "Add vote to review to another API")
-    @GetMapping(value = "/Internalvote/{reviewId}/{string}")
+    @GetMapping(value = "/internalVote/{reviewId}/{string}")
     ReviewDTO updateReviewWithVoteInternal(@PathVariable("reviewId") int reviewId,@PathVariable("string") String status){
         return service.updateReviewWithVoteInternal(reviewId,status);
     }
@@ -79,6 +84,12 @@ public class ReviewController {
     @GetMapping(value = "/order/{sku}")
     List<ReviewDTO> orderReviewsReviews(@PathVariable("sku") final String sku){
         return service.orderAllReviewsByVotes(sku);
+    }
+
+    @Operation(summary = "Get reviews approved from another API")
+    @GetMapping(value = "/internalSearch/reviews/{sku}")
+    List<ReviewDTO> findAllReviewsInternal(@PathVariable("sku") final String sku,@RequestParam Integer pageNo, @RequestParam Integer pageSize){
+        return service.findAllApprovedReviewsInternal(sku,pageNo,pageSize);
     }
 
 }
